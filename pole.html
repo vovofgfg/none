@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поле Чудес: Экономика</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .game-container {
+            text-align: center;
+        }
+        .word {
+            font-size: 24px;
+            letter-spacing: 10px;
+        }
+        .input-container {
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            width: 50px;
+            text-align: center;
+            font-size: 18px;
+        }
+        button {
+            font-size: 18px;
+            margin-left: 10px;
+        }
+        .message, .points {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+        .points {
+            color: green;
+        }
+        .question {
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Поле Чудес: Экономика</h1>
+    <div class="question" id="questionDisplay">Вопрос по экономике: ...</div>
+    <div class="word" id="wordDisplay">_ _ _ _ _ _</div>
+
+    <div class="input-container">
+        <input type="text" id="letterInput" maxlength="1" placeholder="Буква">
+        <button onclick="guessLetter()">Угадать</button>
+    </div>
+
+    <div class="message" id="messageDisplay"></div>
+    <div class="points" id="pointsDisplay">Очки: 0</div>
+    <button onclick="spinWheel()">Крутить рулетку</button>
+</div>
+
+<script>
+    // Массив вопросов по экономике
+    const questions = [
+        "Как называется план доходов и расходов государства?",
+        "Как называется противоположность дефицита?",
+        "Как называется процесс постоянного роста цен?",
+        "Как называется доход от капитала или инвестиций?",
+        "Что происходит, когда одна компания контролирует весь рынок?",
+        "Как называется рынок, на котором много продавцов и покупателей?",
+        "Как называется сумма всех товаров и услуг, произведённых в стране за год?",
+        "Как называется основной элемент экономики, связанный с торговлей и обменом?",
+        "Как называется ценность активов компании, минус обязательства?",
+        "Как называется совокупность затрат, понесенных для производства товара или услуги?"
+    ];
+
+    let currentQuestionIndex = 0;
+    const word = "БЮДЖЕТ";  // Загаданное слово, которое всегда одно и то же
+    let guessedWord = "_".repeat(word.length).split('');  // Пустое поле для слова
+    const wordDisplay = document.getElementById('wordDisplay');
+    const messageDisplay = document.getElementById('messageDisplay');
+    const pointsDisplay = document.getElementById('pointsDisplay');
+    const questionDisplay = document.getElementById('questionDisplay');
+    let currentPoints = 0;
+
+    // Функция обновления отображаемого слова
+    function updateWordDisplay() {
+        wordDisplay.innerHTML = guessedWord.join(' ');
+    }
+
+    // Функция обновления вопроса
+    function updateQuestionDisplay() {
+        questionDisplay.innerHTML = `Вопрос по экономике: ${questions[currentQuestionIndex]}`;
+    }
+
+    // Функция проверки введенной буквы
+    function guessLetter() {
+        const letter = document.getElementById('letterInput').value.toUpperCase();
+        document.getElementById('letterInput').value = '';  // Очищаем поле ввода
+        if (letter === '') {
+            messageDisplay.innerHTML = 'Введите букву!';
+            return;
+        }
+
+        let correctGuess = false;
+        for (let i = 0; i < word.length; i++) {
+            if (word[i] === letter && guessedWord[i] === '_') {
+                guessedWord[i] = letter;
+                correctGuess = true;
+            }
+        }
+
+        if (correctGuess) {
+            messageDisplay.innerHTML = `Правильно! Вы заработали ${currentPoints} очков!`;
+        } else {
+            messageDisplay.innerHTML = 'Нет такой буквы!';
+        }
+
+        updateWordDisplay();
+        checkWin();
+    }
+
+    // Функция проверки выигрыша
+    function checkWin() {
+        if (!guessedWord.includes('_')) {
+            messageDisplay.innerHTML = 'Поздравляем, вы угадали слово: БЮДЖЕТ!';
+        }
+    }
+
+    // Функция перехода к следующему вопросу
+    function nextQuestion() {
+        currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;  // Переход к следующему вопросу
+        updateQuestionDisplay();
+    }
+
+    // Функция кручения рулетки и обновления вопроса
+    function spinWheel() {
+        const points = getRandomPoints();
+        currentPoints = points;
+        pointsDisplay.innerHTML = `Очки: ${points}`;
+        nextQuestion();  // Переход к следующему вопросу при каждом кручении рулетки
+    }
+
+    // Функция для случайного выпадения очков с учётом вероятности
+    function getRandomPoints() {
+        const randomNumber = Math.random(); // случайное число от 0 до 1
+
+        if (randomNumber < 0.5) {
+            return Math.floor(Math.random() * 300) + 100;  // 50% шанс на очки от 100 до 400
+        } else if (randomNumber < 0.8) {
+            return Math.floor(Math.random() * 300) + 400;  // 30% шанс на очки от 400 до 700
+        } else if (randomNumber < 0.95) {
+            return Math.floor(Math.random() * 200) + 700;  // 15% шанс на очки от 700 до 900
+        } else {
+            return Math.floor(Math.random() * 100) + 900;  // 5% шанс на очки от 900 до 1000
+        }
+    }
+
+    // Инициализация игры
+    function initGame() {
+        updateWordDisplay();
+        updateQuestionDisplay();
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>
